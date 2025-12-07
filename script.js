@@ -4,6 +4,8 @@ const addBtn = $("addBtn");
 const todoInput = $("todoInput");
 const todoOpis = $("todoOpis");
 const todoDeadline = $("todoDeadline");
+const todoPriority = $("todoPriority");
+const todoStatus = $("todoStatus");
 const todoList = $("todoList");
 const pagination = $("pagination");
 const errorBox = document.querySelector(".error-message");
@@ -14,12 +16,12 @@ let currentPage = 1;
 
 loadTodos();
 
-// ✅ ЗАГРУЗКА ИЗ SUPABASE + localStorage
+// ✅ Load from Supabase + localStorage
 async function loadTodos() {
   try {
     const { data, error } = await supabase
       .from("whattodoapp")
-      .select("id, text, opis, deadline")
+      .select("id, text, opis, deadline, priority, status")
       .order("id", { ascending: false });
 
     if (!error && data) {
@@ -35,27 +37,33 @@ async function loadTodos() {
   render();
 }
 
-
 addBtn.onclick = async () => {
   const text = todoInput.value.trim();
   const opis = todoOpis.value.trim();
   const deadline = todoDeadline.value;
+  const priority = todoPriority.value;
+  const status = todoStatus.value;
 
-
-  console.log("DEBUG SEND:", { text, opis, deadline });
-
-  if (!text || !opis || !deadline) {
+  if (!text || !opis || !deadline || !priority) {
     return showError("Fill all fields");
   }
 
-  const newTodo = { text, opis, deadline };
-  todos.unshift(newTodo);
+  const newTodo = {
+    text,
+    opis,
+    deadline,
+    priority,
+    status
+  };
 
+  todos.unshift(newTodo);
   localStorage.setItem("todos", JSON.stringify(todos));
 
   todoInput.value = "";
   todoOpis.value = "";
   todoDeadline.value = "";
+  todoPriority.value = "";
+  todoStatus.value = "not_done";
 
   currentPage = 1;
   render();
@@ -64,7 +72,7 @@ addBtn.onclick = async () => {
     const { data, error } = await supabase
       .from("whattodoapp")
       .insert([newTodo])
-      .select("id, text, opis, deadline")
+      .select("id, text, opis, deadline, priority, status")
       .limit(1);
 
     if (!error && data?.length) {
@@ -72,15 +80,12 @@ addBtn.onclick = async () => {
       localStorage.setItem("todos", JSON.stringify(todos));
       render();
     } else {
-      console.error("SUPABASE ERROR:", error);
       showError("Supabase insert error");
     }
-  } catch (e) {
-    console.error("NETWORK ERROR:", e);
+  } catch {
     showError("Saved locally — will sync when online");
   }
 };
-
 
 function render() {
   renderTodos();
@@ -99,6 +104,9 @@ function renderTodos() {
       <strong>${escapeHtml(item.text)}</strong><br>
       <small>${escapeHtml(item.opis)}</small><br>
       <small>📅 ${item.deadline}</small><br>
+      <small>⭐ Priority: ${item.priority}</small><br>
+      <small>✔ Status: ${item.status === "done" ? "Done" : "Not done"}</small><br>
+
       <button class="edit-btn">Edit</button>
       <button class="delete-btn">Delete</button>
     `;
@@ -124,7 +132,6 @@ function renderPagination() {
   }
 }
 
-
 function editTask(index, li) {
   const item = todos[index];
 
@@ -132,6 +139,18 @@ function editTask(index, li) {
     <input class="todo-text" value="${escapeHtml(item.text)}">
     <input class="todo-text" value="${escapeHtml(item.opis)}">
     <input type="date" class="todo-text" value="${item.deadline}">
+
+    <select class="todo-text priority-select">
+      <option value="Low" ${item.priority==="Low"?"selected":""}>Low</option>
+      <option value="Medium" ${item.priority==="Medium"?"selected":""}>Medium</option>
+      <option value="High" ${item.priority==="High"?"selected":""}>High</option>
+    </select>
+
+    <select class="todo-text status-select">
+      <option value="not_done" ${item.status==="not_done"?"selected":""}>Not done</option>
+      <option value="done" ${item.status==="done"?"selected":""}>Done</option>
+    </select>
+
     <button class="save-btn">Save</button>
     <button class="delete-btn">Delete</button>
   `;
@@ -142,7 +161,9 @@ function editTask(index, li) {
     const updated = {
       text: inputs[0].value.trim(),
       opis: inputs[1].value.trim(),
-      deadline: inputs[2].value
+      deadline: inputs[2].value,
+      priority: li.querySelector(".priority-select").value,
+      status: li.querySelector(".status-select").value
     };
 
     if (!updated.text || !updated.opis || !updated.deadline)

@@ -1,45 +1,127 @@
-# README.md
+# Smart Todo – CRUD End‑to‑end (Wymaganie A)
 
-## Opis aplikacji
-Aplikacja jest prostym systemem do publikowania artykułów i zarządzania komentarzami. Umożliwia użytkownikom tworzenie artykułów, przeglądanie istniejących wpisów, dodawanie komentarzy oraz odpowiadanie na komentarze innych użytkowników.
+## 📌 Opis projektu
+Smart Todo to prosta aplikacja CRUD do zarządzania zadaniami, złożona z:
+- **Relacyjnej bazy danych (Supabase / PostgreSQL)**
+- **REST API** (Supabase REST)
+- **Frontend (HTML + JS)** – pełna obsługa CRUD: listowanie, dodawanie, edycja, usuwanie
+- **Migracje SQL** – tabela `whattodoapp`
 
-## Główne funkcjonalności
-- Dodawanie artykułów.
-- Przeglądanie listy artykułów.
-- Dodawanie komentarzy do artykułów.
-- Odpowiadanie na komentarze.
-- Responsywny interfejs użytkownika.
-- Obsługa prostego API REST.
+Projekt spełnia wymagania **A**: encja, API, UI, README oraz struktura repo.
 
-## Technologie użyte w projekcie
-- Frontend: HTML, CSS, JavaScript (lub framework np. React/Vue)
-- Backend: Node.js + Express (lub inny)
-- Baza danych: MongoDB (lub inna)
-- Hosting: GitHub Pages (frontend), Heroku / Railway / Vercel (backend)
+---
 
-## Instrukcja uruchomienia lokalnie
-1. Sklonuj repozytorium:  
-   ```bash
-   git clone <link_do_repo>
-   ```
-2. Przejdź do katalogu projektu:  
-   ```bash
-   cd <nazwa_projektu>
-   ```
-3. Zainstaluj zależności:  
-   ```bash
-   npm install
-   ```
-4. Uruchom serwer:  
-   ```bash
-   npm start
-   ```
-5. Otwórz przeglądarkę pod adresem `http://localhost:3000` (lub wskazanym w terminalu).
+## 📦 Encja (Model + Tabela)
+Nazwa tabeli: **whattodoapp**
 
-## Hosting
-- Aplikacja hostowana pod adresem: [link do hostingu]
-- GitHub Pages (frontend): [link do GitHub Pages]
+| Pole       | Typ         | Opis |
+|------------|-------------|------|
+| `id`       | int (PK)    | Klucz główny, auto‑increment |
+| `text`     | text        | Treść zadania |
+| `opis`     | text        | Opis zadania |
+| `deadline` | date        | Data wykonania |
+| `priority` | text        | Priorytet (low/medium/high) |
+| `status`   | text        | Stan zadania (not_done/done) |
 
-## Prezentacja i nagranie
-- Prezentacja PDF: [link do PDF]
-- Nagranie wideo: [link do wideo]
+### Migracja SQL
+```sql
+create table whattodoapp (
+  id bigserial primary key,
+  text text not null,
+  opis text not null,
+  deadline date not null,
+  priority text default 'low',
+  status text default 'not_done'
+);
+```
+
+---
+
+## 🌐 REST API – Endpointy
+
+Supabase generuje pełne REST API do tabeli.
+
+| Metoda | Endpoint | Opis |
+|--------|----------|------|
+| GET | `/rest/v1/whattodoapp` | Lista wszystkich zadań |
+| GET | `/rest/v1/whattodoapp?id=eq.X` | Pobiera jedno zadanie |
+| POST | `/rest/v1/whattodoapp` | Dodaje zadanie |
+| PATCH | `/rest/v1/whattodoapp?id=eq.X` | Edytuje zadanie |
+| DELETE | `/rest/v1/whattodoapp?id=eq.X` | Usuwa zadanie |
+
+Nagłówki wymagane:
+```
+apikey: <anon_key>
+Authorization: Bearer <anon_key>
+Content-Type: application/json
+```
+
+---
+
+## 🎨 Frontend (HTML/JS)
+Funkcjonalności UI:
+✔ listowanie zadań  
+✔ paginacja  
+✔ dodawanie zadania  
+✔ edycja z prompt  
+✔ usuwanie  
+✔ walidacja pól  
+✔ Supabase + localStorage fallback  
+
+Struktura:
+```
+index.html
+styles.css
+script.js
+README.md
+```
+
+---
+
+## ▶ Jak uruchomić projekt lokalnie
+
+### 1️⃣ Pobierz repo lub ZIP  
+### 2️⃣ Otwórz `index.html` w przeglądarce  
+### 3️⃣ Sprawdź poprawność kluczy w `index.html`  
+```
+const SUPABASE_URL = "...";
+const SUPABASE_ANON_KEY = "...";
+```
+
+---
+
+## ▶ Jak uruchomić projekt w labie
+1. Skopiuj repo do katalogu użytkownika.  
+2. Uruchom `index.html` w przeglądarce Chromium/Firefox.  
+3. Upewnij się, że sieć nie blokuje zapytań HTTPS.  
+
+---
+
+## 🧪 Smoke-test A
+
+- [x] Dodaje zadanie  
+- [x] Edytuje zadanie  
+- [x] Usuwa zadanie  
+- [x] Lista działa  
+- [x] Supabase działa (localStorage fallback)  
+
+---
+
+## 📸 Zrzut ekranu UI
+*(Student dodaje we własnym repo.)*
+
+---
+
+## 📂 Struktura repo
+```
+/encja-A
+  index.html
+  script.js
+  styles.css
+  README.md
+```
+
+---
+
+## 🏷 Wersja
+`v0.1-A`

@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Books CRUD (Supabase)</title>
+  <link rel="stylesheet" href="styles.css">
+
+  <!-- SUPABASE JS -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+  <main class="container">
+    <h1>📚 Books CRUD — Supabase</h1>
+
+    <div class="actions">
+      <button id="btn-refresh">Odśwież listę</button>
+      <button id="btn-open-add">Dodaj książkę</button>
+    </div>
+
+    <!-- FORMULARZ -->
+    <section id="form-section" class="hidden">
+      <h2 id="form-title">Dodaj książkę</h2>
+
+      <form id="book-form">
+        <input type="hidden" id="book-id">
+
+        <label>
+          Tytuł *
+          <input id="title" required minlength="2">
+        </label>
+
+        <label>
+          Autor
+          <input id="author">
+        </label>
+
+        <label>
+          Liczba stron
+          <input id="pages" type="number" min="1">
+        </label>
+
+        <label>
+          Data wydania
+          <input id="published_date" type="date">
+        </label>
+
+        <!-- CHECKBOX DO ODZNACZENIA -->
+        <label class="checkbox-area">
+          <input type="checkbox" id="confirm-checkbox" required>
+          <span>Potwierdzam zapis danych</span>
+        </label>
+
+        <div class="form-actions">
+          <button type="submit" id="btn-save" disabled>Zapisz</button>
+          <button type="button" id="btn-cancel">Anuluj</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- LISTA -->
+    <section id="list-section">
+      <h2>Lista książek</h2>
+      <div id="list-info" class="muted">Ładowanie...</div>
+
+      <table id="books-table" class="hidden">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Tytuł</th>
+            <th>Autor</th>
+            <th>Stron</th>
+            <th>Data wyd.</th>
+            <th>Utworzono</th>
+            <th>Akcje</th>
+          </tr>
+        </thead>
+        <tbody id="books-tbody"></tbody>
+      </table>
+    </section>
+
+    <!-- SZCZEGÓŁY -->
+    <section id="detail-section" class="hidden">
+      <h2>Szczegóły</h2>
+      <pre id="detail-pre"></pre>
+      <button id="btn-close-detail">Zamknij</button>
+    </section>
+
+  </main>
+
+  <!-- KONFIGURACJA SUPABASE (TUTAJ WKLEJASZ SWÓJ KLUCZ) -->
+  <script>
+    const SUPABASE_URL = "https://iwyqkpvbvgvymwuhntof.supabase.co";
+    const SUPABASE_ANON_KEY =
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml3eXFrcHZidmd2eW13dWhudG9mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMyMjgzNDcsImV4cCI6MjA3ODgwNDM0N30.e3tP6GRqXsliKn1Nkl9Uc8vueaeFHbM1hGe7nhCrnds";
+
+    window.supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  </script>
+
+  <script src="script.js"></script>
+</body>
+</html>

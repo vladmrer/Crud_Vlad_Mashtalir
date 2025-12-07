@@ -1,10 +1,8 @@
-
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
-
 
 body {
   font-family: "Roboto", Arial, sans-serif;
@@ -15,7 +13,6 @@ body {
   align-items: center;
   color: #fff;
 }
-
 
 .container {
   background: rgba(255, 255, 255, 0.12);
@@ -30,7 +27,6 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-
 h1 {
   font-size: 2rem;
   margin-bottom: 25px;
@@ -40,8 +36,9 @@ h1 {
   -webkit-text-fill-color: transparent;
 }
 
-
-.todo-input {
+.todo-input,
+.priority-select,
+.status-select {
   width: 100%;
   padding: 14px;
   background: rgba(255, 255, 255, 0.9);
@@ -53,11 +50,12 @@ h1 {
   transition: 0.3s;
 }
 
-.todo-input:focus {
+.todo-input:focus,
+.priority-select:focus,
+.status-select:focus {
   box-shadow: 0 0 10px #a855f7;
   transform: scale(1.02);
 }
-
 
 .add-btn {
   width: 100%;
@@ -79,7 +77,6 @@ h1 {
   box-shadow: 0 0 20px #a855f7;
 }
 
-
 .error-message {
   color: #ff6b6b;
   background: rgba(255, 107, 107, 0.2);
@@ -90,17 +87,12 @@ h1 {
   animation: shake 0.3s;
 }
 
-
 .todo-list {
   list-style: none;
   margin-top: 20px;
 }
 
-
 .todo-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
   background: rgba(255, 255, 255, 0.15);
   padding: 12px 14px;
   margin: 10px 0;
@@ -113,23 +105,6 @@ h1 {
   transform: scale(1.02);
   box-shadow: 0 0 20px rgba(168, 85, 247, 0.6);
 }
-
-
-.todo-text {
-  flex: 1;
-  margin: 0 10px;
-  font-size: 16px;
-  cursor: pointer;
-}
-
-.todo-text input {
-  width: 100%;
-  padding: 6px;
-  border-radius: 6px;
-  border: none;
-  outline: none;
-}
-
 
 .edit-btn,
 .delete-btn,
@@ -144,36 +119,17 @@ h1 {
   transition: 0.3s;
 }
 
-
 .edit-btn {
   background: linear-gradient(135deg, #38bdf8, #0ea5e9);
 }
-
-.edit-btn:hover {
-  transform: scale(1.1);
-  box-shadow: 0 0 10px #38bdf8;
-}
-
 
 .delete-btn {
   background: linear-gradient(135deg, #ff4d6d, #e11d48);
 }
 
-.delete-btn:hover {
-  transform: scale(1.1);
-  box-shadow: 0 0 10px #ff4d6d;
-}
-
-
 .save-btn {
   background: linear-gradient(135deg, #22c55e, #16a34a);
 }
-
-.save-btn:hover {
-  transform: scale(1.1);
-  box-shadow: 0 0 10px #22c55e;
-}
-
 
 .pagination {
   margin-top: 20px;
@@ -202,7 +158,6 @@ h1 {
   cursor: not-allowed;
   box-shadow: none;
 }
-
 
 @keyframes fadeIn {
   from {

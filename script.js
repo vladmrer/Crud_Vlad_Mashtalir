@@ -1,126 +1,117 @@
-const $ = id => document.getElementById(id);
+const SUPABASE_URL = "https://YOUR_URL.supabase.co";
+const SUPABASE_KEY = "YOUR_ANON_KEY";
 
-const addBtn = $("addBtn");
-const todoInput = $("todoInput");
-const todoOpis = $("todoOpis");
-const todoDeadline = $("todoDeadline");
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-const todoList = $("todoList");
-const pagination = $("pagination");
-const errorBox = $("errorMessage");
-
-let todos = [];
-const itemsPerPage = 3;
 let currentPage = 1;
+const pageSize = 5;
 
-// -------------------------
-// LOAD TODOS
-// -------------------------
-loadTodos();
+// --------------------- ADD TASK -------------------------
+async function addTask() {
+    const text = document.getElementById("todoText").value.trim();
+    const opis = document.getElementById("todoOpis").value.trim();
+    const deadline = document.getElementById("todoDeadline").value.trim();
 
-async function loadTodos() {
-  try {
-    const { data } = await supabase
-      .from("whattodoapp")
-      .select("id, text, opis, deadline")
-      .order("id", { ascending: false });
-
-    todos = data || [];
-  } catch {
-    todos = JSON.parse(localStorage.getItem("todos")) || [];
-  }
-
-  render();
-}
-
-// -------------------------
-// ADD TASK (3 pola → 5 w DB)
-// -------------------------
-addBtn.onclick = async () => {
-  const text = todoInput.value.trim();
-  const opis = todoOpis.value.trim();
-  const deadline = todoDeadline.value;
-
-  if (!text || !opis || !deadline) {
-    return showError("Wypełnij wszystkie pola!");
-  }
-
-  // ukryte wartości
-  const priority = "low";
-  const status = "not_done";
-
-  const newTodo = { text, opis, deadline, priority, status };
-
-  todos.unshift(newTodo);
-  localStorage.setItem("todos", JSON.stringify(todos));
-
-  todoInput.value = "";
-  todoOpis.value = "";
-  todoDeadline.value = "";
-
-  currentPage = 1;
-  render();
-
-  try {
-    const { data } = await supabase
-      .from("whattodoapp")
-      .insert([newTodo])
-      .select();
-
-    if (data?.length) {
-      todos[0] = data[0];
-      localStorage.setItem("todos", JSON.stringify(todos));
-      render();
+    if (!text || !opis || !deadline) {
+        showError("Wszystkie 3 pola muszą być wypełnione!");
+        return;
     }
-  } catch {}
-};
 
-// -------------------------
-// RENDER LIST
-// -------------------------
-function render() {
-  renderTodos();
-  renderPagination();
+    const { error } = await supabaseClient
+        .from("whattodoapp")
+        .insert({
+            text,
+            opis,
+            deadline,
+            priority: "Low",
+            status: "not_done"
+        });
+
+    if (error) {
+        showError("Błąd dodawania zadania: " + error.message);
+        return;
+    }
+
+    document.getElementById("todoText").value = "";
+    document.getElementById("todoOpis").value = "";
+    document.getElementById("todoDeadline").value = "";
+
+    loadTasks();
 }
 
-function renderTodos() {
-  todoList.innerHTML = "";
-  const start = (currentPage - 1) * itemsPerPage;
+// --------------------- LOAD TASKS -------------------------
+async function loadTasks() {
+    const start = (currentPage - 1) * pageSize;
+    const end = start + pageSize - 1;
 
-  todos.slice(start, start + itemsPerPage).forEach((item) => {
-    const li = document.createElement("li");
-    li.className = "todo-item";
-    li.innerHTML = `
-      <strong>${item.text}</strong><br>
-      <small>${item.opis}</small><br>
-      <small>📅 ${item.deadline}</small>
-    `;
-    todoList.append(li);
-  });
+    const { data, error } = await supabaseClient
+        .from("whattodoapp")
+        .select("*")
+        .order("id", { ascending: false })
+        .range(start, end);
+
+    if (error) {
+        showError("Błąd pobierania danych: " + error.message);
+        return;
+    }
+
+    const list = document.getElementById("todoList");
+    list.innerHTML = "";
+
+    data.forEach(task => {
+        const li = document.createElement("li");
+        li.className = "todo-item";
+        li.innerHTML = `
+            <span class="todo-text">${task.text}</span>
+            <button class="edit-btn" onclick="editTask(${task.id})">Edytuj</button>
+            <button class="delete-btn" onclick="deleteTask(${task.id})">Usuń</button>
+        `;
+        list.appendChild(li);
+    });
 }
 
-// -------------------------
-// PAGINATION
-// -------------------------
-function renderPagination() {
-  pagination.innerHTML = "";
-  const pages = Math.max(1, Math.ceil(todos.length / itemsPerPage));
+// --------------------- DELETE TASK -------------------------
+async function deleteTask(id) {
+    const { error } = await supabaseClient
+        .from("whattodoapp")
+        .delete()
+        .eq("id", id);
 
-  for (let i = 1; i <= pages; i++) {
-    const btn = document.createElement("button");
-    btn.className = "pagination-btn";
-    btn.textContent = i;
-    btn.disabled = i === currentPage;
-    btn.onclick = () => { currentPage = i; render(); };
-    pagination.append(btn);
-  }
+    if (error) {
+        showError("Błąd usuwania: " + error.message);
+        return;
+    }
+
+    loadTasks();
 }
 
-// -------------------------
-// ERROR BOX
-// -------------------------
-function showError(text) {
-  errorBox.textContent = text;
-  errorBox.style.display = "block";
-  setTimeout(() => (errorBox.style.display = "none"), 2500);
+// --------------------- EDIT TASK -------------------------
+async function editTask(id) {
+    const newText = prompt("Nowa treść zadania:");
+    if (!newText) return;
+
+    const { error } = await supabaseClient
+        .from("whattodoapp")
+        .update({ text: newText })
+        .eq("id", id);
+
+    if (error) {
+        showError("Błąd aktualizacji: " + error.message);
+        return;
+    }
+
+    loadTasks();
 }
+
+// --------------------- ERROR MESSAGE -------------------------
+function showError(msg) {
+    const box = document.getElementById("errorBox");
+    box.style.display = "block";
+    box.textContent = msg;
+
+    setTimeout(() => {
+        box.style.display = "none";
+    }, 3000);
+}
+
+loadTasks();

@@ -20,7 +20,6 @@
 
     <div id="errorMessage" class="error-message"></div>
 
-   
     <section class="input-group">
       <input 
         type="text" 
@@ -44,6 +43,18 @@
         class="todo-input"
       >
 
+      <select id="todoPriority" class="todo-input">
+        <option value="">Priority</option>
+        <option value="Low">Low</option>
+        <option value="Medium">Medium</option>
+        <option value="High">High</option>
+      </select>
+
+      <select id="todoStatus" class="todo-input">
+        <option value="not_done">Not done</option>
+        <option value="done">Done</option>
+      </select>
+
       <button id="addBtn" class="add-btn">Add Task</button>
     </section>
 
@@ -57,6 +68,7 @@
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <script>
     const SUPABASE_URL = "https://lpophlzugttsxwoocqhr.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxwb3BobHp1Z3R0c3h3b29jcWhyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ5MzgyMjMsImV4cCI6MjA4MDUxNDIyM30.DGlVe8ZYAeBQlAeHdkI2UmJKwUgwihX25r5tZ4HdNn8";

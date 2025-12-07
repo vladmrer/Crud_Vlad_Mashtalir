@@ -1,88 +1,126 @@
-body {
-  margin: 0;
-  padding: 0;
-  font-family: "Roboto", sans-serif;
-  background: #f1f5f9;
+const $ = id => document.getElementById(id);
+
+const addBtn = $("addBtn");
+const todoInput = $("todoInput");
+const todoOpis = $("todoOpis");
+const todoDeadline = $("todoDeadline");
+
+const todoList = $("todoList");
+const pagination = $("pagination");
+const errorBox = $("errorMessage");
+
+let todos = [];
+const itemsPerPage = 3;
+let currentPage = 1;
+
+// -------------------------
+// LOAD TODOS
+// -------------------------
+loadTodos();
+
+async function loadTodos() {
+  try {
+    const { data } = await supabase
+      .from("whattodoapp")
+      .select("id, text, opis, deadline")
+      .order("id", { ascending: false });
+
+    todos = data || [];
+  } catch {
+    todos = JSON.parse(localStorage.getItem("todos")) || [];
+  }
+
+  render();
 }
 
-.container {
-  max-width: 700px;
-  margin: 40px auto;
-  padding: 20px;
-  background: white;
-  border-radius: 14px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+// -------------------------
+// ADD TASK (3 pola → 5 w DB)
+// -------------------------
+addBtn.onclick = async () => {
+  const text = todoInput.value.trim();
+  const opis = todoOpis.value.trim();
+  const deadline = todoDeadline.value;
+
+  if (!text || !opis || !deadline) {
+    return showError("Wypełnij wszystkie pola!");
+  }
+
+  // ukryte wartości
+  const priority = "low";
+  const status = "not_done";
+
+  const newTodo = { text, opis, deadline, priority, status };
+
+  todos.unshift(newTodo);
+  localStorage.setItem("todos", JSON.stringify(todos));
+
+  todoInput.value = "";
+  todoOpis.value = "";
+  todoDeadline.value = "";
+
+  currentPage = 1;
+  render();
+
+  try {
+    const { data } = await supabase
+      .from("whattodoapp")
+      .insert([newTodo])
+      .select();
+
+    if (data?.length) {
+      todos[0] = data[0];
+      localStorage.setItem("todos", JSON.stringify(todos));
+      render();
+    }
+  } catch {}
+};
+
+// -------------------------
+// RENDER LIST
+// -------------------------
+function render() {
+  renderTodos();
+  renderPagination();
 }
 
-header {
-  text-align: center;
-  margin-bottom: 25px;
+function renderTodos() {
+  todoList.innerHTML = "";
+  const start = (currentPage - 1) * itemsPerPage;
+
+  todos.slice(start, start + itemsPerPage).forEach((item) => {
+    const li = document.createElement("li");
+    li.className = "todo-item";
+    li.innerHTML = `
+      <strong>${item.text}</strong><br>
+      <small>${item.opis}</small><br>
+      <small>📅 ${item.deadline}</small>
+    `;
+    todoList.append(li);
+  });
 }
 
-.subtitle {
-  color: #6b7280;
+// -------------------------
+// PAGINATION
+// -------------------------
+function renderPagination() {
+  pagination.innerHTML = "";
+  const pages = Math.max(1, Math.ceil(todos.length / itemsPerPage));
+
+  for (let i = 1; i <= pages; i++) {
+    const btn = document.createElement("button");
+    btn.className = "pagination-btn";
+    btn.textContent = i;
+    btn.disabled = i === currentPage;
+    btn.onclick = () => { currentPage = i; render(); };
+    pagination.append(btn);
+  }
 }
 
-.input-group input,
-.input-group button {
-  width: 100%;
-  padding: 12px;
-  margin: 6px 0;
-  font-size: 16px;
-  border-radius: 8px;
-  border: 1px solid #cbd5e1;
-}
-
-.add-btn {
-  background-color: #3b82f6;
-  color: white;
-  border: none;
-  cursor: pointer;
-}
-
-.add-btn:hover {
-  background-color: #2563eb;
-}
-
-.todo-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.todo-item {
-  background: #f8fafc;
-  padding: 15px;
-  margin-bottom: 12px;
-  border-radius: 10px;
-  border-left: 6px solid #3b82f6;
-}
-
-.error-message {
-  display: none;
-  padding: 12px;
-  background-color: #dc2626;
-  color: white;
-  text-align: center;
-  border-radius: 8px;
-  margin-bottom: 12px;
-}
-
-.pagination {
-  text-align: center;
-  margin-top: 20px;
-}
-
-.pagination-btn {
-  padding: 8px 14px;
-  margin: 0 4px;
-  border: none;
-  background-color: #e2e8f0;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-.pagination-btn:disabled {
-  background-color: #3b82f6;
-  color: white;
+// -------------------------
+// ERROR BOX
+// -------------------------
+function showError(text) {
+  errorBox.textContent = text;
+  errorBox.style.display = "block";
+  setTimeout(() => (errorBox.style.display = "none"), 2500);
 }

@@ -22,7 +22,7 @@ async function loadTodos() {
   try {
     const { data } = await supabase
       .from("whattodoapp")
-      .select("id, text, opis, deadline")
+      .select("id, text, opis, deadline, priority, status")
       .order("id", { ascending: false });
 
     todos = data || [];
@@ -34,32 +34,30 @@ async function loadTodos() {
 }
 
 // -------------------------
-// ADD TASK (3 → 5 pól)
+// ADD TASK
 // -------------------------
 addBtn.onclick = async () => {
   const text = todoInput.value.trim();
   const opis = todoOpis.value.trim();
   const deadline = todoDeadline.value;
 
-  if (!text || !opis || !deadline) {
-    return showError("Wypełnij wszystkie pola!");
-  }
+  if (!text || !opis || !deadline) return showError("Wypełnij wszystkie pola!");
 
-  // automatyczne wartości
-  const priority = "low";
-  const status = "not_done";
-
-  const newTodo = { text, opis, deadline, priority, status };
+  const newTodo = {
+    text,
+    opis,
+    deadline,
+    priority: "low",
+    status: "not_done"
+  };
 
   todos.unshift(newTodo);
   localStorage.setItem("todos", JSON.stringify(todos));
+  render();
 
   todoInput.value = "";
   todoOpis.value = "";
   todoDeadline.value = "";
-
-  currentPage = 1;
-  render();
 
   try {
     const { data } = await supabase
@@ -74,6 +72,60 @@ addBtn.onclick = async () => {
     }
   } catch {}
 };
+
+// -------------------------
+// DELETE TASK
+// -------------------------
+async function deleteTodo(id) {
+  // usuń lokalnie
+  todos = todos.filter(t => t.id !== id);
+  localStorage.setItem("todos", JSON.stringify(todos));
+  render();
+
+  try {
+    await supabase
+      .from("whattodoapp")
+      .delete()
+      .eq("id", id);
+  } catch {}
+}
+
+// -------------------------
+// EDIT TASK
+// -------------------------
+async function editTodo(id) {
+  const task = todos.find(t => t.id === id);
+  if (!task) return;
+
+  const newText = prompt("Nowy tekst:", task.text);
+  if (!newText) return;
+
+  const newOpis = prompt("Nowy opis:", task.opis);
+  if (!newOpis) return;
+
+  const newDeadline = prompt("Nowy deadline (YYYY-MM-DD):", task.deadline);
+  if (!newDeadline) return;
+
+  // aktualizacja lokalnie
+  task.text = newText;
+  task.opis = newOpis;
+  task.deadline = newDeadline;
+
+  localStorage.setItem("todos", JSON.stringify(todos));
+  render();
+
+  // aktualizacja w supabase
+  try {
+    await supabase
+      .from("whattodoapp")
+      .update({
+        text: newText,
+        opis: newOpis,
+        deadline: newDeadline
+      })
+      .eq("id", id);
+  } catch {}
+}
 
 // -------------------------
 // RENDER LIST
@@ -96,6 +148,11 @@ function renderTodos() {
         <strong>${item.text}</strong><br>
         <small>${item.opis}</small><br>
         <small>📅 ${item.deadline}</small>
+      </div>
+
+      <div>
+        <button class="edit-btn" onclick="editTodo(${item.id})">Edytuj</button>
+        <button class="delete-btn" onclick="deleteTodo(${item.id})">Usuń</button>
       </div>
     `;
 

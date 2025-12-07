@@ -1,205 +1,88 @@
-const $ = id => document.getElementById(id);
-
-const addBtn = $("addBtn");
-const todoInput = $("todoInput");
-const todoOpis = $("todoOpis");
-const todoDeadline = $("todoDeadline");
-const todoPriority = $("todoPriority");
-const todoStatus = $("todoStatus");
-
-const todoList = $("todoList");
-const pagination = $("pagination");
-const errorBox = document.querySelector(".error-message");
-
-let todos = [];
-const itemsPerPage = 3;
-let currentPage = 1;
-
-loadTodos();
-
-async function loadTodos() {
-  try {
-    const { data, error } = await supabase
-      .from("whattodoapp")
-      .select("id, text, opis, deadline, priority, status")
-      .order("id", { ascending: false });
-
-    if (!error && data) {
-      todos = data;
-      localStorage.setItem("todos", JSON.stringify(todos));
-    } else {
-      todos = JSON.parse(localStorage.getItem("todos")) || [];
-    }
-  } catch {
-    todos = JSON.parse(localStorage.getItem("todos")) || [];
-  }
-
-  render();
+body {
+  margin: 0;
+  padding: 0;
+  font-family: "Roboto", sans-serif;
+  background: #f1f5f9;
 }
 
-addBtn.onclick = async () => {
-  const text = todoInput.value.trim();
-  const opis = todoOpis.value.trim();
-  const deadline = todoDeadline.value;
-  const priority = todoPriority.value;
-  const status = todoStatus.value;
-
-  if (!text || !opis || !deadline || !priority || !status) {
-    return showError("Fill all fields");
-  }
-
-  const newTodo = { text, opis, deadline, priority, status };
-  todos.unshift(newTodo);
-
-  localStorage.setItem("todos", JSON.stringify(todos));
-
-  todoInput.value = "";
-  todoOpis.value = "";
-  todoDeadline.value = "";
-  todoPriority.value = "";
-  todoStatus.value = "";
-
-  currentPage = 1;
-  render();
-
-  try {
-    const { data, error } = await supabase
-      .from("whattodoapp")
-      .insert([newTodo])
-      .select("id, text, opis, deadline, priority, status")
-      .limit(1);
-
-    if (!error && data?.length) {
-      todos[0] = data[0];
-      localStorage.setItem("todos", JSON.stringify(todos));
-      render();
-    } else {
-      showError("Supabase insert error");
-    }
-  } catch {
-    showError("Saved locally — will sync when online");
-  }
-};
-
-function render() {
-  renderTodos();
-  renderPagination();
+.container {
+  max-width: 700px;
+  margin: 40px auto;
+  padding: 20px;
+  background: white;
+  border-radius: 14px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
 }
 
-function renderTodos() {
-  todoList.innerHTML = "";
-  const start = (currentPage - 1) * itemsPerPage;
-
-  todos.slice(start, start + itemsPerPage).forEach((item, i) => {
-    const li = document.createElement("li");
-    li.className = "todo-item";
-
-    li.innerHTML = `
-      <strong>${escapeHtml(item.text)}</strong><br>
-      <small>${escapeHtml(item.opis)}</small><br>
-      <small>📅 ${item.deadline}</small><br>
-      <small>⭐ Priority: ${item.priority}</small><br>
-      <small>📌 Status: ${item.status}</small><br>
-
-      <button class="edit-btn">Edit</button>
-      <button class="delete-btn">Delete</button>
-    `;
-
-    li.querySelector(".edit-btn").onclick = () => editTask(start + i, li);
-    li.querySelector(".delete-btn").onclick = () => deleteTask(start + i);
-
-    todoList.append(li);
-  });
+header {
+  text-align: center;
+  margin-bottom: 25px;
 }
 
-function renderPagination() {
-  pagination.innerHTML = "";
-  const pages = Math.max(1, Math.ceil(todos.length / itemsPerPage));
-
-  for (let i = 1; i <= pages; i++) {
-    const btn = document.createElement("button");
-    btn.className = "pagination-btn";
-    btn.textContent = i;
-    btn.disabled = i === currentPage;
-    btn.onclick = () => { currentPage = i; render(); };
-    pagination.append(btn);
-  }
+.subtitle {
+  color: #6b7280;
 }
 
-function editTask(index, li) {
-  const item = todos[index];
-
-  li.innerHTML = `
-    <input class="todo-text" value="${escapeHtml(item.text)}">
-    <input class="todo-text" value="${escapeHtml(item.opis)}">
-    <input type="date" class="todo-text" value="${item.deadline}">
-
-    <select class="todo-text">
-      <option value="low" ${item.priority === "low" ? "selected" : ""}>Low</option>
-      <option value="medium" ${item.priority === "medium" ? "selected" : ""}>Medium</option>
-      <option value="high" ${item.priority === "high" ? "selected" : ""}>High</option>
-    </select>
-
-    <select class="todo-text">
-      <option value="todo" ${item.status === "todo" ? "selected" : ""}>Todo</option>
-      <option value="in-progress" ${item.status === "in-progress" ? "selected" : ""}>In Progress</option>
-      <option value="done" ${item.status === "done" ? "selected" : ""}>Done</option>
-    </select>
-
-    <button class="save-btn">Save</button>
-    <button class="delete-btn">Delete</button>
-  `;
-
-  li.querySelector(".save-btn").onclick = async () => {
-    const inputs = li.querySelectorAll("input, select");
-
-    const updated = {
-      text: inputs[0].value.trim(),
-      opis: inputs[1].value.trim(),
-      deadline: inputs[2].value,
-      priority: inputs[3].value,
-      status: inputs[4].value
-    };
-
-    if (!updated.text || !updated.opis || !updated.deadline || !updated.priority || !updated.status) {
-      return showError("Fill all fields");
-    }
-
-    todos[index] = { ...todos[index], ...updated };
-    localStorage.setItem("todos", JSON.stringify(todos));
-    render();
-
-    if (item.id) {
-      await supabase.from("whattodoapp").update(updated).eq("id", item.id);
-    }
-  };
-
-  li.querySelector(".delete-btn").onclick = () => deleteTask(index);
+.input-group input,
+.input-group button {
+  width: 100%;
+  padding: 12px;
+  margin: 6px 0;
+  font-size: 16px;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
 }
 
-async function deleteTask(index) {
-  const removed = todos.splice(index, 1)[0];
-
-  localStorage.setItem("todos", JSON.stringify(todos));
-
-  if ((currentPage - 1) * itemsPerPage >= todos.length)
-    currentPage = Math.max(1, currentPage - 1);
-
-  render();
-
-  if (removed.id) {
-    await supabase.from("whattodoapp").delete().eq("id", removed.id);
-  }
+.add-btn {
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  cursor: pointer;
 }
 
-function showError(text) {
-  errorBox.textContent = text;
-  errorBox.style.display = "block";
-  setTimeout(() => (errorBox.style.display = "none"), 3000);
+.add-btn:hover {
+  background-color: #2563eb;
 }
 
-function escapeHtml(s) {
-  return s.replace(/[&<>"']/g, c => (
-    {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]
-  ));
+.todo-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.todo-item {
+  background: #f8fafc;
+  padding: 15px;
+  margin-bottom: 12px;
+  border-radius: 10px;
+  border-left: 6px solid #3b82f6;
+}
+
+.error-message {
+  display: none;
+  padding: 12px;
+  background-color: #dc2626;
+  color: white;
+  text-align: center;
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+
+.pagination {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.pagination-btn {
+  padding: 8px 14px;
+  margin: 0 4px;
+  border: none;
+  background-color: #e2e8f0;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.pagination-btn:disabled {
+  background-color: #3b82f6;
+  color: white;
 }

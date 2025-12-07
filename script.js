@@ -13,9 +13,7 @@ let todos = [];
 const itemsPerPage = 3;
 let currentPage = 1;
 
-// -------------------------
-// LOAD TODOS
-// -------------------------
+
 loadTodos();
 
 async function loadTodos() {
@@ -90,9 +88,6 @@ async function deleteTodo(id) {
   } catch {}
 }
 
-// -------------------------
-// EDIT TASK
-// -------------------------
 async function editTodo(id) {
   const task = todos.find(t => t.id === id);
   if (!task) return;
@@ -106,7 +101,6 @@ async function editTodo(id) {
   const newDeadline = prompt("Nowy deadline (YYYY-MM-DD):", task.deadline);
   if (!newDeadline) return;
 
-  // aktualizacja lokalnie
   task.text = newText;
   task.opis = newOpis;
   task.deadline = newDeadline;
@@ -114,7 +108,6 @@ async function editTodo(id) {
   localStorage.setItem("todos", JSON.stringify(todos));
   render();
 
-  // aktualizacja w supabase
   try {
     await supabase
       .from("whattodoapp")
@@ -127,9 +120,6 @@ async function editTodo(id) {
   } catch {}
 }
 
-// -------------------------
-// RENDER LIST
-// -------------------------
 function render() {
   renderTodos();
   renderPagination();
@@ -160,9 +150,7 @@ function renderTodos() {
   });
 }
 
-// -------------------------
-// PAGINATION
-// -------------------------
+
 function renderPagination() {
   pagination.innerHTML = "";
   const pages = Math.max(1, Math.ceil(todos.length / itemsPerPage));
@@ -177,9 +165,6 @@ function renderPagination() {
   }
 }
 
-// -------------------------
-// ERROR BOX
-// -------------------------
 function showError(text) {
   errorBox.textContent = text;
   errorBox.style.display = "block";

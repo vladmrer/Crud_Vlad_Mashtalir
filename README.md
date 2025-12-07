@@ -1,6 +1,6 @@
 # Smart Todo – CRUD End‑to‑end (Wymaganie A)
 
-## 📌 Opis projektu
+##  Opis projektu
 Smart Todo to prosta aplikacja CRUD do zarządzania zadaniami, złożona z:
 - **Relacyjnej bazy danych (Supabase / PostgreSQL)**
 - **REST API** (Supabase REST)
@@ -11,7 +11,7 @@ Projekt spełnia wymagania **A**: encja, API, UI, README oraz struktura repo.
 
 ---
 
-## 📦 Encja (Model + Tabela)
+##  Encja (Model + Tabela)
 Nazwa tabeli: **whattodoapp**
 
 | Pole       | Typ         | Opis |
@@ -37,7 +37,7 @@ create table whattodoapp (
 
 ---
 
-## 🌐 REST API – Endpointy
+##  REST API – Endpointy
 
 Supabase generuje pełne REST API do tabeli.
 
@@ -58,7 +58,7 @@ Content-Type: application/json
 
 ---
 
-## 🎨 Frontend (HTML/JS)
+##  Frontend (HTML/JS)
 Funkcjonalności UI:
 ✔ listowanie zadań  
 ✔ paginacja  
@@ -80,9 +80,9 @@ README.md
 
 ## ▶ Jak uruchomić projekt lokalnie
 
-### 1️⃣ Pobierz repo lub ZIP  
-### 2️⃣ Otwórz `index.html` w przeglądarce  
-### 3️⃣ Sprawdź poprawność kluczy w `index.html`  
+### 1️ Pobierz repo lub ZIP  
+### 2️ Otwórz `index.html` w przeglądarce  
+### 3️ Sprawdź poprawność kluczy w `index.html`  
 ```
 const SUPABASE_URL = "...";
 const SUPABASE_ANON_KEY = "...";
@@ -97,7 +97,7 @@ const SUPABASE_ANON_KEY = "...";
 
 ---
 
-## 🧪 Smoke-test A
+##  Smoke-test A
 
 - [x] Dodaje zadanie  
 - [x] Edytuje zadanie  
@@ -112,7 +112,7 @@ const SUPABASE_ANON_KEY = "...";
 
 ---
 
-## 📂 Struktura repo
+## Struktura repo
 ```
 /encja-A
   index.html
@@ -120,8 +120,3 @@ const SUPABASE_ANON_KEY = "...";
   styles.css
   README.md
 ```
-
----
-
-## 🏷 Wersja
-`v0.1-A`

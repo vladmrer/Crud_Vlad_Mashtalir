@@ -1,4 +1,4 @@
-# Smart Todo – CRUD End‑to‑end (Wymaganie A)
+# CRUD End‑to‑end (Wymaganie A)
 
 ##  Opis projektu
 Smart Todo to prosta aplikacja CRUD do zarządzania zadaniami, złożona z:

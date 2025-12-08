@@ -102,7 +102,6 @@ const SUPABASE_ANON_KEY = "...";
 ---
 
 ## 📸 Zrzut ekranu UI
-*(Student dodaje we własnym repo.)*
 <img width="1851" height="869" alt="image" src="https://github.com/user-attachments/assets/7592b8f9-4a73-4668-afa3-255145904f88" />
 
 ---

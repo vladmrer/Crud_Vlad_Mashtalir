@@ -68,13 +68,7 @@ Funkcjonalności UI:
 ✔ walidacja pól  
 ✔ Supabase + localStorage fallback  
 
-Struktura:
-```
-index.html
-styles.css
-script.js
-README.md
-```
+``
 
 ---
 

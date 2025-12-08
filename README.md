@@ -1,7 +1,7 @@
 # CRUD End‑to‑end (Wymaganie A)
 
 ##  Opis projektu
-Smart Todo to prosta aplikacja CRUD do zarządzania zadaniami, złożona z:
+To prosta aplikacja CRUD do zarządzania zadaniami, złożona z:
 - **Relacyjnej bazy danych (Supabase / PostgreSQL)**
 - **REST API** (Supabase REST)
 - **Frontend (HTML + JS)** – pełna obsługa CRUD: listowanie, dodawanie, edycja, usuwanie
